@@ -1,0 +1,33 @@
+version: "3.2"
+services:
+  app:
+    build:
+      args: 
+        MONGO_URI_LOCAL: mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE}
+        MONGO_URI_PROD: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE}
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: app
+    volumes:
+      - ./src/:/usr/src/app/src/
+      - ./node_modules:/usr/src/app/node_modules
+    ports:
+    - ${PORT}:3000
+    networks:
+    - ts-network
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    restart: always
+    volumes:
+    - mongo_volumes:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
+    ports:
+      - 27017:27017
+    networks:
+    - ts-network
+networks:
+  ts-network:
+volumes:
+  mongo_volumes:
